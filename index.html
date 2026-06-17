@@ -740,6 +740,7 @@
           throw new Error("html2canvas is not loaded.");
         }
 
+        document.documentElement.dataset.downloadStatus = "waiting-for-assets";
         if (document.fonts) {
           await document.fonts.ready;
         }
@@ -755,12 +756,85 @@
           });
         }));
 
-        return html2canvas(card, {
+        document.documentElement.dataset.downloadStatus = "rendering-card";
+        const canvas = await html2canvas(card, {
           backgroundColor: null,
           logging: false,
           scale: 6,
           useCORS: false
         });
+
+        document.documentElement.dataset.downloadStatus = "drawing-original-photos";
+        await drawOriginalPhotos(canvas);
+        return canvas;
+      }
+
+      function createRoundedPath(context, x, y, width, height, radius) {
+        const safeRadius = Math.min(radius, width / 2, height / 2);
+        context.beginPath();
+        context.moveTo(x + safeRadius, y);
+        context.lineTo(x + width - safeRadius, y);
+        context.quadraticCurveTo(x + width, y, x + width, y + safeRadius);
+        context.lineTo(x + width, y + height - safeRadius);
+        context.quadraticCurveTo(x + width, y + height, x + width - safeRadius, y + height);
+        context.lineTo(x + safeRadius, y + height);
+        context.quadraticCurveTo(x, y + height, x, y + height - safeRadius);
+        context.lineTo(x, y + safeRadius);
+        context.quadraticCurveTo(x, y, x + safeRadius, y);
+        context.closePath();
+      }
+
+      async function drawOriginalPhotos(canvas) {
+        const context = canvas.getContext("2d");
+        if (context.resetTransform) {
+          context.resetTransform();
+        } else {
+          context.setTransform(1, 0, 0, 1, 0, 0);
+        }
+
+        const scale = canvas.width / card.getBoundingClientRect().width;
+        const cardRect = card.getBoundingClientRect();
+
+        for (const photo of [...card.querySelectorAll(".photo")]) {
+          const image = photo.querySelector("img");
+          const photoRect = photo.getBoundingClientRect();
+          const x = Math.round((photoRect.left - cardRect.left) * scale);
+          const y = Math.round((photoRect.top - cardRect.top) * scale);
+          const width = Math.round(photoRect.width * scale);
+          const height = Math.round(photoRect.height * scale);
+          const radius = parseFloat(getComputedStyle(photo).borderRadius) * scale;
+          const sourceWidth = image.naturalWidth;
+          const sourceHeight = image.naturalHeight;
+          const sourceRatio = sourceWidth / sourceHeight;
+          const targetRatio = photoRect.width / photoRect.height;
+          let sourceX = 0;
+          let sourceY = 0;
+          let cropWidth = sourceWidth;
+          let cropHeight = sourceHeight;
+
+          if (sourceRatio > targetRatio) {
+            cropWidth = Math.round(sourceHeight * targetRatio);
+            sourceX = Math.round((sourceWidth - cropWidth) / 2);
+          } else {
+            cropHeight = Math.round(sourceWidth / targetRatio);
+            sourceY = Math.round((sourceHeight - cropHeight) / 2);
+          }
+
+          context.save();
+          createRoundedPath(context, x, y, width, height, radius);
+          context.clip();
+          context.imageSmoothingEnabled = true;
+          context.imageSmoothingQuality = "high";
+          context.drawImage(image, sourceX, sourceY, cropWidth, cropHeight, x, y, width, height);
+          context.restore();
+
+          context.save();
+          createRoundedPath(context, x + 0.5, y + 0.5, width - 1, height - 1, radius);
+          context.strokeStyle = "rgba(255, 255, 255, 0.38)";
+          context.lineWidth = Math.max(1, scale);
+          context.stroke();
+          context.restore();
+        }
       }
 
       function getDownloadFileName() {
@@ -773,14 +847,18 @@
         const previousLabel = downloadImage.textContent;
         downloadImage.textContent = "Preparing...";
         downloadImage.disabled = true;
+        document.documentElement.dataset.downloadStatus = "starting";
+        delete document.documentElement.dataset.downloadError;
 
         try {
           const canvas = await createCardCanvas();
+          document.documentElement.dataset.downloadStatus = "creating-blob";
           const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
           if (!blob) {
             throw new Error("Canvas PNG blob could not be created.");
           }
 
+          document.documentElement.dataset.downloadStatus = "downloading";
           const url = URL.createObjectURL(blob);
           const link = document.createElement("a");
           link.download = getDownloadFileName();
@@ -789,8 +867,11 @@
           link.click();
           link.remove();
           setTimeout(() => URL.revokeObjectURL(url), 1000);
+          document.documentElement.dataset.downloadStatus = "done";
         } catch (error) {
           console.error(error);
+          document.documentElement.dataset.downloadStatus = "error";
+          document.documentElement.dataset.downloadError = error.message || String(error);
           alert("Sorry, the image could not be generated. Please try taking a screenshot in printable mode.");
         } finally {
           downloadImage.textContent = previousLabel;
