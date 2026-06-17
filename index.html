@@ -127,16 +127,16 @@
       .stage {
         display: grid;
         place-items: center;
-        min-height: calc(100vh - 106px);
+        min-height: calc(100vh - 150px);
       }
 
       .card {
         position: relative;
         display: grid;
         overflow: hidden;
-        width: min(100%, 640px, calc((100vh - 106px) * 0.8));
-        height: min(calc(100vh - 106px), calc((100vw - 20px) * 1.25));
-        max-height: calc(100vh - 106px);
+        width: min(100%, 640px, calc((100vh - 150px) * 0.8));
+        height: min(calc(100vh - 150px), calc((100vw - 20px) * 1.25));
+        max-height: calc(100vh - 150px);
         padding: clamp(12px, 2.2vw, 24px);
         border: 1px solid rgba(255, 255, 255, 0.78);
         border-radius: 8px;
@@ -146,8 +146,8 @@
 
       .card.landscape {
         width: min(100%, 980px);
-        height: min(calc(100vh - 106px), calc((100vw - 20px) / 1.45));
-        max-height: calc(100vh - 106px);
+        height: min(calc(100vh - 150px), calc((100vw - 20px) / 1.45));
+        max-height: calc(100vh - 150px);
         aspect-ratio: 1.45 / 1;
       }
 
@@ -559,6 +559,7 @@
           <span>Language</span>
           <select id="language">
             <option value="en">English</option>
+            <option value="fr">French</option>
             <option value="ko">Korean</option>
             <option value="ja">Japanese</option>
           </select>
@@ -601,7 +602,7 @@
 
             <div class="copy">
               <div class="eyebrow" data-i18n="eyebrow">Welcome to the world</div>
-              <div class="name-row" aria-label="Names in English, Korean, and Japanese">
+              <div class="name-row" aria-label="Names in English, French, Korean, and Japanese">
                 <p class="alt-name" data-i18n="leftName">문세나</p>
                 <h1 data-i18n="name">Sena Éliane Moon</h1>
                 <p class="alt-name" data-i18n="rightName">駒形瀬奈</p>
@@ -639,6 +640,16 @@
           weightLabel: "Weight",
           heightLabel: "Height"
         },
+        fr: {
+          eyebrow: "Bienvenue au monde",
+          name: "Sena Éliane Moon",
+          leftName: "문세나",
+          rightName: "駒形瀬奈",
+          bornLabel: "Naissance",
+          born: "16 juin 2026, 22:12",
+          weightLabel: "Poids",
+          heightLabel: "Taille"
+        },
         ko: {
           eyebrow: "세상에 온 걸 환영해",
           name: "문세나",
@@ -672,7 +683,7 @@
       let photoOrder = [...photoGrid.querySelectorAll(".photo")];
 
       function setLanguage(locale) {
-        card.classList.remove("locale-en", "locale-ko", "locale-ja");
+        card.classList.remove("locale-en", "locale-fr", "locale-ko", "locale-ja");
         card.classList.add(`locale-${locale}`);
         document.documentElement.lang = locale;
 
