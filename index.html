@@ -629,6 +629,7 @@
       </section>
     </main>
 
+    <script src="assets/html2canvas.min.js"></script>
     <script>
       const content = {
         en: {
@@ -731,35 +732,38 @@
         renderPhotos();
       }
 
-      function copyComputedStyles(source, target) {
-        const styles = getComputedStyle(source);
-        for (const property of styles) {
-          target.style.setProperty(property, styles.getPropertyValue(property), styles.getPropertyPriority(property));
+      async function createCardCanvas() {
+        if (!window.html2canvas) {
+          throw new Error("html2canvas is not loaded.");
         }
 
-        [...source.children].forEach((child, index) => {
-          copyComputedStyles(child, target.children[index]);
-        });
-      }
+        if (document.fonts) {
+          await document.fonts.ready;
+        }
 
-      function blobToDataUrl(blob) {
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result);
-          reader.onerror = reject;
-          reader.readAsDataURL(blob);
-        });
-      }
+        await Promise.all([...card.querySelectorAll("img")].map((image) => {
+          if (image.complete && image.naturalWidth > 0) {
+            return Promise.resolve();
+          }
 
-      async function inlineCloneImages(clone) {
-        const sourceImages = [...card.querySelectorAll("img")];
-        const cloneImages = [...clone.querySelectorAll("img")];
-
-        await Promise.all(cloneImages.map(async (image, index) => {
-          const response = await fetch(sourceImages[index].currentSrc || sourceImages[index].src);
-          const blob = await response.blob();
-          image.src = await blobToDataUrl(blob);
+          return new Promise((resolve, reject) => {
+            image.addEventListener("load", resolve, { once: true });
+            image.addEventListener("error", reject, { once: true });
+          });
         }));
+
+        return html2canvas(card, {
+          backgroundColor: null,
+          logging: false,
+          scale: Math.min(3, window.devicePixelRatio || 2),
+          useCORS: false
+        });
+      }
+
+      function getDownloadFileName() {
+        const locale = language.value;
+        const layout = card.classList.contains("landscape") ? "landscape" : "portrait";
+        return `sena-baby-card-${locale}-${layout}.png`;
       }
 
       async function downloadCardImage() {
@@ -768,56 +772,9 @@
         downloadImage.disabled = true;
 
         try {
-          if (document.fonts) {
-            await document.fonts.ready;
-          }
-
-          const rect = card.getBoundingClientRect();
-          const clone = card.cloneNode(true);
-          copyComputedStyles(card, clone);
-          await inlineCloneImages(clone);
-
-          clone.style.width = `${rect.width}px`;
-          clone.style.height = `${rect.height}px`;
-          clone.style.maxWidth = "none";
-          clone.style.maxHeight = "none";
-          clone.style.boxShadow = "none";
-
-          const wrapper = document.createElement("div");
-          wrapper.setAttribute("xmlns", "http://www.w3.org/1999/xhtml");
-          wrapper.style.width = `${rect.width}px`;
-          wrapper.style.height = `${rect.height}px`;
-          wrapper.style.background = getComputedStyle(card).backgroundColor;
-          wrapper.append(clone);
-
-          const serialized = new XMLSerializer().serializeToString(wrapper);
-          const svg = `
-            <svg xmlns="http://www.w3.org/2000/svg" width="${rect.width}" height="${rect.height}" viewBox="0 0 ${rect.width} ${rect.height}">
-              <foreignObject width="100%" height="100%">${serialized}</foreignObject>
-            </svg>
-          `;
-          const svgUrl = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml;charset=utf-8" }));
-          const image = new Image();
-          const scale = 2;
-
-          await new Promise((resolve, reject) => {
-            image.onload = resolve;
-            image.onerror = reject;
-            image.src = svgUrl;
-          });
-
-          const canvas = document.createElement("canvas");
-          canvas.width = Math.round(rect.width * scale);
-          canvas.height = Math.round(rect.height * scale);
-          const context = canvas.getContext("2d");
-          context.scale(scale, scale);
-          context.drawImage(image, 0, 0);
-          URL.revokeObjectURL(svgUrl);
-
+          const canvas = await createCardCanvas();
           const link = document.createElement("a");
-          const locale = language.value;
-          const layout = card.classList.contains("landscape") ? "landscape" : "portrait";
-          link.download = `sena-baby-card-${locale}-${layout}.png`;
+          link.download = getDownloadFileName();
           link.href = canvas.toDataURL("image/png");
           link.click();
         } catch (error) {
@@ -852,6 +809,12 @@
           capture.textContent = "Printable mode";
         }
       });
+
+      if (new URLSearchParams(window.location.search).get("download") === "1") {
+        window.addEventListener("load", () => {
+          setTimeout(downloadCardImage, 250);
+        });
+      }
     </script>
   </body>
 </html>
