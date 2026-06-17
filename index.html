@@ -217,15 +217,18 @@
         height: 100%;
         min-height: 0;
         border-radius: 8px;
-        background: #ddd2c9;
+        background-color: #ddd2c9;
+        background-image: var(--photo-image);
+        background-position: center;
+        background-size: cover;
       }
 
       .photo img {
         width: 100%;
         height: 100%;
         min-height: 0;
-        object-fit: cover;
         display: block;
+        opacity: 0;
       }
 
       .main-photo {
@@ -590,13 +593,13 @@
         <article class="card blush locale-en" id="card">
           <div class="portrait-layout">
             <div class="photo-grid" aria-label="Family photos">
-              <figure class="photo main-photo">
+              <figure class="photo main-photo" style="--photo-image: url('assets/photo-1.jpeg')">
                 <img src="assets/photo-1.jpeg" alt="Newborn Sena resting peacefully" />
               </figure>
-              <figure class="photo">
+              <figure class="photo" style="--photo-image: url('assets/photo-2.jpeg')">
                 <img src="assets/photo-2.jpeg" alt="Sena with mother" />
               </figure>
-              <figure class="photo">
+              <figure class="photo" style="--photo-image: url('assets/photo-3.jpeg')">
                 <img src="assets/photo-3.jpeg" alt="Sena with parents" />
               </figure>
             </div>
@@ -755,7 +758,7 @@
         return html2canvas(card, {
           backgroundColor: null,
           logging: false,
-          scale: Math.min(3, window.devicePixelRatio || 2),
+          scale: 6,
           useCORS: false
         });
       }
@@ -773,10 +776,19 @@
 
         try {
           const canvas = await createCardCanvas();
+          const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+          if (!blob) {
+            throw new Error("Canvas PNG blob could not be created.");
+          }
+
+          const url = URL.createObjectURL(blob);
           const link = document.createElement("a");
           link.download = getDownloadFileName();
-          link.href = canvas.toDataURL("image/png");
+          link.href = url;
+          document.body.append(link);
           link.click();
+          link.remove();
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
         } catch (error) {
           console.error(error);
           alert("Sorry, the image could not be generated. Please try taking a screenshot in printable mode.");
