@@ -1,0 +1,745 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sena Eliane Moon - Baby Card</title>
+    <style>
+      :root {
+        --paper: #fbf7f1;
+        --ink: #332621;
+        --muted: #806f65;
+        --line: rgba(93, 65, 50, 0.18);
+        --rose: #b76f75;
+        --sage: #617565;
+        --blue: #536f87;
+        --shadow: 0 28px 70px rgba(60, 41, 34, 0.18);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at 20% 10%, rgba(183, 111, 117, 0.18), transparent 32rem),
+          linear-gradient(135deg, #f5ede3 0%, #e7efe9 100%);
+        color: var(--ink);
+        font-family: ui-serif, Georgia, "Times New Roman", "Noto Serif CJK KR", "Noto Serif CJK JP", serif;
+      }
+
+      button,
+      select {
+        font: inherit;
+      }
+
+      .app {
+        display: grid;
+        align-content: start;
+        min-height: 100vh;
+        padding: 10px;
+      }
+
+      .toolbar {
+        position: sticky;
+        top: 14px;
+        z-index: 10;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+        justify-content: center;
+        width: min(100%, 980px);
+        margin: 0 auto 8px;
+        padding: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.74);
+        border-radius: 8px;
+        background: rgba(255, 252, 247, 0.86);
+        box-shadow: 0 12px 32px rgba(64, 45, 39, 0.12);
+        backdrop-filter: blur(16px);
+      }
+
+      .control {
+        display: grid;
+        gap: 4px;
+      }
+
+      .control span {
+        color: var(--muted);
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .segmented {
+        display: inline-flex;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fffaf4;
+      }
+
+      .segmented button,
+      select,
+      .print-button {
+        min-height: 38px;
+        border: 0;
+        color: var(--ink);
+        background: transparent;
+        cursor: pointer;
+      }
+
+      .segmented button {
+        min-width: 96px;
+        padding: 0 12px;
+      }
+
+      .segmented button + button {
+        border-left: 1px solid var(--line);
+      }
+
+      .segmented button.is-active,
+      .print-button {
+        background: var(--ink);
+        color: #fffaf4;
+      }
+
+      select {
+        width: 150px;
+        padding: 0 12px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fffaf4;
+      }
+
+      .print-button {
+        align-self: end;
+        padding: 0 16px;
+        border-radius: 8px;
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-weight: 700;
+      }
+
+      .stage {
+        display: grid;
+        place-items: center;
+        min-height: calc(100vh - 106px);
+      }
+
+      .card {
+        position: relative;
+        display: grid;
+        overflow: hidden;
+        width: min(100%, 640px, calc((100vh - 106px) * 0.8));
+        height: min(calc(100vh - 106px), calc((100vw - 20px) * 1.25));
+        max-height: calc(100vh - 106px);
+        padding: clamp(12px, 2.2vw, 24px);
+        border: 1px solid rgba(255, 255, 255, 0.78);
+        border-radius: 8px;
+        background: var(--paper);
+        box-shadow: var(--shadow);
+      }
+
+      .card.landscape {
+        width: min(100%, 980px);
+        height: min(calc(100vh - 106px), calc((100vw - 20px) / 1.45));
+        max-height: calc(100vh - 106px);
+        aspect-ratio: 1.45 / 1;
+      }
+
+      .card.blush {
+        --paper: #fbf4f0;
+        --ink: #3d2929;
+        --muted: #8d6b68;
+        --accent: var(--rose);
+      }
+
+      .card.garden {
+        --paper: #f6f7ef;
+        --ink: #25332a;
+        --muted: #6f7b6b;
+        --accent: var(--sage);
+      }
+
+      .card.classic {
+        --paper: #f8f4ec;
+        --ink: #2a2b31;
+        --muted: #6c6d74;
+        --accent: var(--blue);
+      }
+
+      .portrait-layout {
+        display: grid;
+        grid-template-rows: minmax(0, 1fr) auto auto;
+        gap: clamp(8px, 1.5vw, 14px);
+        height: 100%;
+        min-height: 0;
+      }
+
+      .portrait-layout > * {
+        min-height: 0;
+      }
+
+      .landscape .portrait-layout {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        grid-template-rows: minmax(0, 1fr) auto;
+        align-items: stretch;
+      }
+
+      .photo-grid {
+        display: grid;
+        gap: 10px;
+        min-height: 0;
+        overflow: hidden;
+      }
+
+      .portrait-layout .photo-grid {
+        grid-template-columns: 1.2fr 0.8fr;
+        grid-template-rows: 1fr 1fr;
+      }
+
+      .landscape .photo-grid {
+        grid-column: 1 / 3;
+        grid-row: 1;
+        height: 100%;
+        grid-template-columns: 2fr 1fr 1fr;
+        grid-template-rows: 1fr;
+      }
+
+      .photo {
+        position: relative;
+        overflow: hidden;
+        margin: 0;
+        height: 100%;
+        min-height: 0;
+        border-radius: 8px;
+        background: #ddd2c9;
+      }
+
+      .photo img {
+        width: 100%;
+        height: 100%;
+        min-height: 0;
+        object-fit: cover;
+        display: block;
+      }
+
+      .main-photo {
+        grid-row: span 2;
+      }
+
+      .landscape .main-photo {
+        grid-column: span 1;
+        grid-row: auto;
+      }
+
+      .photo::after {
+        position: absolute;
+        inset: 0;
+        content: "";
+        border: 1px solid rgba(255, 255, 255, 0.38);
+        border-radius: inherit;
+        pointer-events: none;
+      }
+
+      .copy {
+        display: grid;
+        align-content: center;
+        justify-items: center;
+        gap: clamp(6px, 1.2vw, 12px);
+        text-align: center;
+      }
+
+      .landscape .copy {
+        justify-items: start;
+        text-align: left;
+        align-content: end;
+      }
+
+      .eyebrow {
+        color: var(--accent);
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-size: clamp(11px, 1.2vw, 13px);
+        font-weight: 800;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0;
+        max-width: 14ch;
+        font-size: clamp(30px, 5.8vw, 58px);
+        font-weight: 500;
+        line-height: 0.95;
+        letter-spacing: 0;
+      }
+
+      .name-row {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        gap: clamp(8px, 1.8vw, 18px);
+        align-items: end;
+        width: min(100%, 560px);
+      }
+
+      .landscape .name-row {
+        justify-items: start;
+        grid-template-columns: 1fr;
+        gap: 5px;
+      }
+
+      .landscape .alt-name,
+      .landscape .alt-name:first-child,
+      .landscape .alt-name:last-child {
+        text-align: left;
+      }
+
+      .alt-name {
+        min-width: 0;
+        margin: 0;
+        color: var(--muted);
+        font-size: clamp(13px, 1.8vw, 20px);
+        line-height: 1.15;
+        overflow-wrap: anywhere;
+      }
+
+      .alt-name:first-child {
+        text-align: right;
+      }
+
+      .alt-name:last-child {
+        text-align: left;
+      }
+
+      .alt-name.is-hidden {
+        visibility: hidden;
+      }
+
+      .details {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+        min-height: 0;
+      }
+
+      .landscape .details {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        align-self: end;
+        grid-column: 2;
+        grid-row: 2;
+      }
+
+      .detail {
+        display: grid;
+        align-content: center;
+        gap: 4px;
+        min-width: 0;
+        padding: clamp(7px, 1.1vw, 12px);
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+      }
+
+      .landscape .detail {
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+        padding: 7px 4px;
+      }
+
+      .detail-label {
+        color: var(--accent);
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .detail-value {
+        font-size: clamp(14px, 2vw, 20px);
+        line-height: 1.12;
+      }
+
+      body.capture .toolbar {
+        display: none;
+      }
+
+      body.capture .app {
+        padding: 0;
+      }
+
+      body.capture .card {
+        width: min(100vw, 760px);
+        max-height: none;
+        border-radius: 0;
+        box-shadow: none;
+      }
+
+      body.capture .card.landscape {
+        width: min(100vw, 1040px);
+      }
+
+      @media (max-width: 760px) {
+        .app {
+          padding: 8px;
+        }
+
+        .stage {
+          min-height: calc(100vh - 238px);
+        }
+
+        .toolbar {
+          justify-content: stretch;
+          gap: 6px;
+          margin-bottom: 6px;
+          padding: 6px;
+        }
+
+        .control {
+          gap: 2px;
+        }
+
+        .control span {
+          font-size: 9px;
+        }
+
+        .segmented button,
+        select,
+        .print-button {
+          min-height: 32px;
+          font-size: 13px;
+        }
+
+        .control,
+        .print-button {
+          flex: 1 1 136px;
+        }
+
+        .segmented,
+        select,
+        .print-button {
+          width: 100%;
+        }
+
+        .segmented button {
+          min-width: 0;
+          flex: 1;
+        }
+
+        .card {
+          width: min(100%, 640px, calc((100vh - 238px) * 0.8));
+          height: min(calc(100vh - 238px), calc((100vw - 16px) * 1.25));
+          max-height: calc(100vh - 238px);
+          padding: 10px;
+        }
+
+        .card.landscape {
+          width: min(100%, 640px, calc((100vh - 238px) * 0.8));
+          height: min(calc(100vh - 238px), calc((100vw - 16px) * 1.25));
+          max-height: calc(100vh - 238px);
+        }
+
+        .landscape .portrait-layout {
+          grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+          grid-template-rows: minmax(0, 1fr) auto;
+        }
+
+        .landscape .photo-grid {
+          grid-column: 1 / 3;
+          grid-row: 1;
+          grid-template-rows: minmax(0, 1fr);
+        }
+
+        .landscape .details {
+          grid-column: 2;
+          grid-row: 2;
+          grid-template-columns: 1fr;
+          gap: 0;
+        }
+
+        .landscape .photo-grid {
+          height: auto;
+          min-height: 0;
+        }
+
+        .landscape .copy {
+          grid-column: 1;
+          grid-row: 2;
+          justify-items: start;
+          text-align: left;
+        }
+
+        .name-row {
+          grid-template-columns: 1fr;
+          justify-items: start;
+          gap: 6px;
+        }
+
+        .alt-name,
+        .alt-name:first-child,
+        .alt-name:last-child {
+          text-align: left;
+        }
+
+        .alt-name {
+          font-size: clamp(11px, 3.5vw, 15px);
+        }
+
+        h1 {
+          font-size: clamp(25px, 8vw, 34px);
+        }
+
+        .eyebrow {
+          font-size: 9px;
+        }
+
+        .details {
+          gap: 4px;
+        }
+
+        .detail {
+          padding: 3px 4px;
+        }
+
+        .detail-label {
+          font-size: 8px;
+          letter-spacing: 0.08em;
+        }
+
+        .detail-value {
+          font-size: clamp(11px, 3.4vw, 14px);
+        }
+      }
+
+      @media print {
+        @page {
+          margin: 0;
+          size: auto;
+        }
+
+        body {
+          background: #fff;
+        }
+
+        .toolbar {
+          display: none;
+        }
+
+        .app {
+          min-height: auto;
+          padding: 0;
+        }
+
+        .card {
+          width: 100vw !important;
+          max-width: none;
+          min-height: 100vh;
+          border: 0;
+          border-radius: 0;
+          box-shadow: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <form class="toolbar" aria-label="Card settings">
+        <label class="control">
+          <span>Layout</span>
+          <span class="segmented">
+            <button type="button" class="is-active" data-layout="portrait">Portrait</button>
+            <button type="button" data-layout="landscape">Landscape</button>
+          </span>
+        </label>
+
+        <label class="control">
+          <span>Language</span>
+          <select id="language">
+            <option value="en">English</option>
+            <option value="ko">Korean</option>
+            <option value="ja">Japanese</option>
+          </select>
+        </label>
+
+        <label class="control">
+          <span>Style</span>
+          <select id="style">
+            <option value="blush">Blush</option>
+            <option value="garden">Garden</option>
+            <option value="classic">Classic</option>
+          </select>
+        </label>
+
+        <label class="control">
+          <span>Photos</span>
+          <span class="segmented">
+            <button type="button" id="rotatePhotos">Rotate</button>
+            <button type="button" id="shufflePhotos">Shuffle</button>
+          </span>
+        </label>
+
+        <button class="print-button" type="button" id="capture">Printable mode</button>
+      </form>
+
+      <section class="stage" aria-label="Baby announcement preview">
+        <article class="card blush locale-en" id="card">
+          <div class="portrait-layout">
+            <div class="photo-grid" aria-label="Family photos">
+              <figure class="photo main-photo">
+                <img src="assets/photo-1.jpeg" alt="Newborn Sena resting peacefully" />
+              </figure>
+              <figure class="photo">
+                <img src="assets/photo-2.jpeg" alt="Sena with mother" />
+              </figure>
+              <figure class="photo">
+                <img src="assets/photo-3.jpeg" alt="Sena with parents" />
+              </figure>
+            </div>
+
+            <div class="copy">
+              <div class="eyebrow" data-i18n="eyebrow">Welcome to the world</div>
+              <div class="name-row" aria-label="Names in English, Korean, and Japanese">
+                <p class="alt-name" data-i18n="leftName">문세나</p>
+                <h1 data-i18n="name">Sena Éliane Moon</h1>
+                <p class="alt-name" data-i18n="rightName">駒形瀬奈</p>
+              </div>
+            </div>
+
+            <div class="details">
+              <div class="detail">
+                <span class="detail-label" data-i18n="bornLabel">Born</span>
+                <span class="detail-value" data-i18n="born">16 June 2026, 22:12</span>
+              </div>
+              <div class="detail">
+                <span class="detail-label" data-i18n="weightLabel">Weight</span>
+                <span class="detail-value">3125g</span>
+              </div>
+              <div class="detail">
+                <span class="detail-label" data-i18n="heightLabel">Height</span>
+                <span class="detail-value">49cm</span>
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <script>
+      const content = {
+        en: {
+          eyebrow: "Welcome to the world",
+          name: "Sena Éliane Moon",
+          leftName: "문세나",
+          rightName: "駒形瀬奈",
+          bornLabel: "Born",
+          born: "16 June 2026, 22:12",
+          weightLabel: "Weight",
+          heightLabel: "Height"
+        },
+        ko: {
+          eyebrow: "세상에 온 걸 환영해",
+          name: "문세나",
+          leftName: "Sena Éliane Moon",
+          rightName: "駒形瀬奈",
+          bornLabel: "태어난 날",
+          born: "2026년 6월 16일 22:12",
+          weightLabel: "몸무게",
+          heightLabel: "키"
+        },
+        ja: {
+          eyebrow: "ようこそ、世界へ",
+          name: "駒形瀬奈",
+          leftName: "Sena Éliane Moon",
+          rightName: "문세나",
+          bornLabel: "誕生",
+          born: "2026年6月16日 22:12",
+          weightLabel: "体重",
+          heightLabel: "身長"
+        }
+      };
+
+      const card = document.querySelector("#card");
+      const language = document.querySelector("#language");
+      const style = document.querySelector("#style");
+      const capture = document.querySelector("#capture");
+      const layoutButtons = document.querySelectorAll("[data-layout]");
+      const photoGrid = document.querySelector(".photo-grid");
+      const rotatePhotos = document.querySelector("#rotatePhotos");
+      const shufflePhotos = document.querySelector("#shufflePhotos");
+      let photoOrder = [...photoGrid.querySelectorAll(".photo")];
+
+      function setLanguage(locale) {
+        card.classList.remove("locale-en", "locale-ko", "locale-ja");
+        card.classList.add(`locale-${locale}`);
+        document.documentElement.lang = locale;
+
+        document.querySelectorAll("[data-i18n]").forEach((node) => {
+          node.textContent = content[locale][node.dataset.i18n];
+        });
+      }
+
+      function setLayout(layout) {
+        card.classList.toggle("landscape", layout === "landscape");
+        layoutButtons.forEach((button) => {
+          button.classList.toggle("is-active", button.dataset.layout === layout);
+        });
+      }
+
+      function setStyle(theme) {
+        card.classList.remove("blush", "garden", "classic");
+        card.classList.add(theme);
+      }
+
+      function renderPhotos() {
+        photoOrder.forEach((photo, index) => {
+          photo.classList.toggle("main-photo", index === 0);
+          photoGrid.append(photo);
+        });
+      }
+
+      function rotatePhotoOrder() {
+        photoOrder.push(photoOrder.shift());
+        renderPhotos();
+      }
+
+      function shufflePhotoOrder() {
+        const previousOrder = photoOrder.map((photo) => photo.querySelector("img").src).join("|");
+        for (let index = photoOrder.length - 1; index > 0; index -= 1) {
+          const swapIndex = Math.floor(Math.random() * (index + 1));
+          [photoOrder[index], photoOrder[swapIndex]] = [photoOrder[swapIndex], photoOrder[index]];
+        }
+        const nextOrder = photoOrder.map((photo) => photo.querySelector("img").src).join("|");
+        if (nextOrder === previousOrder) {
+          photoOrder.push(photoOrder.shift());
+        }
+        renderPhotos();
+      }
+
+      layoutButtons.forEach((button) => {
+        button.addEventListener("click", () => setLayout(button.dataset.layout));
+      });
+
+      language.addEventListener("change", () => setLanguage(language.value));
+      style.addEventListener("change", () => setStyle(style.value));
+      rotatePhotos.addEventListener("click", rotatePhotoOrder);
+      shufflePhotos.addEventListener("click", shufflePhotoOrder);
+
+      capture.addEventListener("click", () => {
+        document.body.classList.toggle("capture");
+        capture.textContent = document.body.classList.contains("capture")
+          ? "Show settings"
+          : "Printable mode";
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          document.body.classList.remove("capture");
+          capture.textContent = "Printable mode";
+        }
+      });
+    </script>
+  </body>
+</html>
