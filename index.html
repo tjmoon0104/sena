@@ -324,13 +324,13 @@
 
       .details {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(4, 1fr);
         gap: 6px;
         min-height: 0;
       }
 
       .landscape .details {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(4, minmax(0, 1fr));
         align-self: end;
         grid-column: 2;
         grid-row: 2;
@@ -617,15 +617,15 @@
 
             <div class="details">
               <div class="detail">
-                <span class="detail-label" data-i18n="bornLabel">Born</span>
                 <span class="detail-value" data-i18n="born">16 June 2026</span>
               </div>
               <div class="detail">
-                <span class="detail-label" data-i18n="weightLabel">Weight</span>
+                <span class="detail-value" data-i18n="time">22:12</span>
+              </div>
+              <div class="detail">
                 <span class="detail-value">3125g</span>
               </div>
               <div class="detail">
-                <span class="detail-label" data-i18n="heightLabel">Height</span>
                 <span class="detail-value">49cm</span>
               </div>
             </div>
@@ -644,6 +644,7 @@
           rightName: "駒形瀬奈",
           bornLabel: "Born",
           born: "16 June 2026",
+          time: "22:12",
           weightLabel: "Weight",
           heightLabel: "Height"
         },
@@ -654,6 +655,7 @@
           rightName: "駒形瀬奈",
           bornLabel: "Naissance",
           born: "16 juin 2026",
+          time: "22:12",
           weightLabel: "Poids",
           heightLabel: "Taille"
         },
@@ -664,6 +666,7 @@
           rightName: "駒形瀬奈",
           bornLabel: "태어난 날",
           born: "2026년 6월 16일",
+          time: "22:12",
           weightLabel: "몸무게",
           heightLabel: "키"
         },
@@ -674,6 +677,7 @@
           rightName: "문세나",
           bornLabel: "誕生",
           born: "2026年6月16日",
+          time: "22:12",
           weightLabel: "体重",
           heightLabel: "身長"
         }
