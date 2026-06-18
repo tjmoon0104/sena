@@ -263,6 +263,17 @@
         align-content: end;
       }
 
+      .intro {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+
+      .landscape .intro {
+        justify-content: flex-start;
+      }
+
       .eyebrow {
         color: var(--accent);
         font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -270,6 +281,20 @@
         font-weight: 800;
         letter-spacing: 0.18em;
         text-transform: uppercase;
+      }
+
+      .gender-mark {
+        display: inline-grid;
+        place-items: center;
+        width: clamp(21px, 2.3vw, 28px);
+        aspect-ratio: 1;
+        border: 1px solid color-mix(in srgb, var(--accent) 42%, transparent);
+        border-radius: 999px;
+        color: var(--accent);
+        background: color-mix(in srgb, var(--accent) 9%, white);
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(14px, 1.7vw, 18px);
+        line-height: 1;
       }
 
       h1 {
@@ -610,7 +635,10 @@
             </div>
 
             <div class="copy">
-              <div class="eyebrow" data-i18n="eyebrow">Welcome to the world</div>
+              <div class="intro">
+                <span class="gender-mark" aria-label="Baby girl">♀</span>
+                <div class="eyebrow" data-i18n="eyebrow">Welcome to the world, baby girl</div>
+              </div>
               <div class="name-row" aria-label="Names in English, French, Korean, and Japanese">
                 <p class="alt-name" data-i18n="leftName">문세나</p>
                 <h1 data-i18n="name">Sena Éliane Moon</h1>
@@ -911,6 +939,10 @@
           capture.textContent = "Printable mode";
         }
       });
+
+      setLanguage(language.value);
+      setStyle(style.value);
+      setLayout("portrait");
 
       if (new URLSearchParams(window.location.search).get("download") === "1") {
         window.addEventListener("load", () => {
