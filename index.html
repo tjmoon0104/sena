@@ -324,13 +324,13 @@
 
       .details {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: 1.45fr 0.75fr 0.85fr 0.8fr;
         gap: 6px;
         min-height: 0;
       }
 
       .landscape .details {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+        grid-template-columns: minmax(0, 1.45fr) minmax(0, 0.75fr) minmax(0, 0.85fr) minmax(0, 0.8fr);
         align-self: end;
         grid-column: 2;
         grid-row: 2;
@@ -364,8 +364,11 @@
       }
 
       .detail-value {
-        font-size: clamp(14px, 2vw, 20px);
+        max-width: 100%;
+        overflow: visible;
+        font-size: clamp(12px, 1.8vw, 20px);
         line-height: 1.12;
+        white-space: nowrap;
       }
 
       body.capture .toolbar {
@@ -515,7 +518,7 @@
         }
 
         .detail-value {
-          font-size: clamp(11px, 3.4vw, 14px);
+          font-size: clamp(9px, 2.8vw, 13px);
         }
       }
 
