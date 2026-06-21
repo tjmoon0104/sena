@@ -31,7 +31,8 @@
       }
 
       button,
-      select {
+      select,
+      input {
         font: inherit;
       }
 
@@ -85,6 +86,7 @@
 
       .segmented button,
       select,
+      input[type="number"],
       .print-button {
         min-height: 38px;
         border: 0;
@@ -116,6 +118,14 @@
         background: #fffaf4;
       }
 
+      input[type="number"] {
+        width: 92px;
+        padding: 0 10px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fffaf4;
+      }
+
       .print-button {
         align-self: end;
         padding: 0 16px;
@@ -140,7 +150,11 @@
         height: 14cm;
         max-width: none;
         max-height: none;
-        padding: 10px;
+        padding: var(--portrait-margin, 2.6mm);
+        --portrait-eyebrow-size: 9px;
+        --portrait-title-size: 30px;
+        --portrait-alt-size: 12px;
+        --portrait-detail-size: 13px;
         border: 1px solid rgba(255, 255, 255, 0.78);
         border-radius: 8px;
         background: var(--paper);
@@ -151,12 +165,7 @@
         aspect-ratio: 14 / 10;
         width: 14cm;
         height: 10cm;
-      }
-
-      .card.baby-card {
-        aspect-ratio: 21 / 10.5;
-        width: 21cm;
-        height: 10.5cm;
+        padding: 10px;
       }
 
       .card.blush {
@@ -188,91 +197,8 @@
         min-height: 0;
       }
 
-      .baby-card .portrait-layout {
-        display: none;
-      }
-
       .portrait-layout > * {
         min-height: 0;
-      }
-
-      .baby-card-layout {
-        display: none;
-      }
-
-      .baby-card .baby-card-layout {
-        display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 0;
-        height: 100%;
-        min-height: 0;
-      }
-
-      .baby-page {
-        position: relative;
-        display: grid;
-        min-width: 0;
-        min-height: 0;
-        padding: 8px;
-        border-left: 1px solid var(--line);
-        overflow: hidden;
-      }
-
-      .baby-page:first-child {
-        border-left: 0;
-      }
-
-      .baby-cover {
-        grid-template-rows: minmax(0, 1fr) auto auto;
-        gap: 7px;
-      }
-
-      .baby-cover-photos {
-        display: grid;
-        grid-template-columns: 1.5fr 1fr;
-        grid-template-rows: 1fr 1fr;
-        gap: 7px;
-        min-height: 0;
-      }
-
-      .baby-cover-photos .photo:first-child {
-        grid-row: span 2;
-      }
-
-      .baby-names {
-        display: grid;
-        gap: 2px;
-        align-content: center;
-        text-align: center;
-      }
-
-      .baby-name {
-        margin: 0;
-        color: var(--ink);
-        font-size: 18px;
-        line-height: 1;
-        white-space: nowrap;
-      }
-
-      .baby-card .details {
-        grid-template-columns: 1.45fr 0.75fr 0.85fr 0.8fr;
-        gap: 3px;
-      }
-
-      .baby-card .detail {
-        padding: 2px 3px;
-      }
-
-      .baby-card .detail-value {
-        font-size: 10px;
-      }
-
-      .baby-photo-page {
-        padding: 8px;
-      }
-
-      .baby-photo-page .photo {
-        height: 100%;
       }
 
       .landscape .portrait-layout {
@@ -310,8 +236,9 @@
         border-radius: 8px;
         background-color: #ddd2c9;
         background-image: var(--photo-image);
-        background-position: center;
-        background-size: cover;
+        background-position: var(--photo-position, center center);
+        background-repeat: no-repeat;
+        background-size: var(--photo-fit, cover);
       }
 
       .photo img {
@@ -357,7 +284,7 @@
       .eyebrow {
         color: var(--accent);
         font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        font-size: 9px;
+        font-size: var(--portrait-eyebrow-size);
         font-weight: 800;
         letter-spacing: 0.18em;
         text-transform: uppercase;
@@ -368,7 +295,7 @@
         min-width: 0;
         margin: 0;
         max-width: 14ch;
-        font-size: 30px;
+        font-size: var(--portrait-title-size);
         font-weight: 500;
         line-height: 0.95;
         letter-spacing: 0;
@@ -422,7 +349,7 @@
         min-width: 0;
         margin: 0;
         color: var(--muted);
-        font-size: 12px;
+        font-size: var(--portrait-alt-size);
         line-height: 1.15;
         overflow-wrap: normal;
         white-space: nowrap;
@@ -492,7 +419,7 @@
       .detail-value {
         max-width: 100%;
         overflow: visible;
-        font-size: 13px;
+        font-size: var(--portrait-detail-size);
         line-height: 1.12;
         white-space: nowrap;
       }
@@ -514,10 +441,6 @@
 
       body.capture .card.landscape {
         width: 14cm;
-      }
-
-      body.capture .card.baby-card {
-        width: 21cm;
       }
 
       @media (max-width: 760px) {
@@ -602,10 +525,6 @@
           height: 10cm !important;
         }
 
-        .card.baby-card {
-          width: 21cm !important;
-          height: 10.5cm !important;
-        }
       }
     </style>
   </head>
@@ -617,7 +536,6 @@
           <span class="segmented">
             <button type="button" class="is-active" data-layout="portrait">Portrait</button>
             <button type="button" data-layout="landscape">Landscape</button>
-            <button type="button" data-layout="baby-card">Baby card</button>
           </span>
         </label>
 
@@ -629,6 +547,11 @@
             <option value="ko">Korean</option>
             <option value="ja">Japanese</option>
           </select>
+        </label>
+
+        <label class="control" id="portraitMarginControl">
+          <span>Margin mm</span>
+          <input id="portraitMargin" type="number" min="0" max="18" step="1" value="3" />
         </label>
 
         <label class="control">
@@ -691,61 +614,6 @@
               </div>
             </div>
           </div>
-
-          <div class="baby-card-layout" aria-label="Four page baby card">
-            <section class="baby-page baby-cover" aria-label="Cover page">
-              <div class="baby-cover-photos" aria-label="Cover photos">
-                <figure class="photo" style="--photo-image: url('assets/photo-1.jpeg')">
-                  <img src="assets/photo-1.jpeg" alt="Newborn Sena resting peacefully" />
-                </figure>
-                <figure class="photo" style="--photo-image: url('assets/photo-2.jpeg')">
-                  <img src="assets/photo-2.jpeg" alt="Sena with mother" />
-                </figure>
-                <figure class="photo" style="--photo-image: url('assets/photo-3.jpeg')">
-                  <img src="assets/photo-3.jpeg" alt="Sena with parents" />
-                </figure>
-              </div>
-
-              <div class="baby-names" aria-label="Names in English, Korean, and Japanese">
-                <p class="baby-name">Sena Éliane Moon</p>
-                <p class="baby-name">문세나</p>
-                <p class="baby-name">駒形瀬奈</p>
-              </div>
-
-              <div class="details">
-                <div class="detail">
-                  <span class="detail-value">2026年6月16日</span>
-                </div>
-                <div class="detail">
-                  <span class="detail-value">22:12</span>
-                </div>
-                <div class="detail">
-                  <span class="detail-value">3125g</span>
-                </div>
-                <div class="detail">
-                  <span class="detail-value">49cm</span>
-                </div>
-              </div>
-            </section>
-
-            <section class="baby-page baby-photo-page" aria-label="Page two">
-              <figure class="photo" style="--photo-image: url('assets/photo-1.jpeg')">
-                <img src="assets/photo-1.jpeg" alt="Newborn Sena resting peacefully" />
-              </figure>
-            </section>
-
-            <section class="baby-page baby-photo-page" aria-label="Page three">
-              <figure class="photo" style="--photo-image: url('assets/photo-2.jpeg')">
-                <img src="assets/photo-2.jpeg" alt="Sena with mother" />
-              </figure>
-            </section>
-
-            <section class="baby-page baby-photo-page" aria-label="Page four">
-              <figure class="photo" style="--photo-image: url('assets/photo-3.jpeg')">
-                <img src="assets/photo-3.jpeg" alt="Sena with parents" />
-              </figure>
-            </section>
-          </div>
         </article>
       </section>
     </main>
@@ -801,7 +669,8 @@
 
       const card = document.querySelector("#card");
       const language = document.querySelector("#language");
-      const languageControl = document.querySelector("#languageControl");
+      const portraitMargin = document.querySelector("#portraitMargin");
+      const portraitMarginControl = document.querySelector("#portraitMarginControl");
       const style = document.querySelector("#style");
       const capture = document.querySelector("#capture");
       const downloadImage = document.querySelector("#downloadImage");
@@ -823,11 +692,21 @@
 
       function setLayout(layout) {
         card.classList.toggle("landscape", layout === "landscape");
-        card.classList.toggle("baby-card", layout === "baby-card");
-        languageControl.hidden = layout === "baby-card";
+        portraitMarginControl.hidden = layout !== "portrait";
         layoutButtons.forEach((button) => {
           button.classList.toggle("is-active", button.dataset.layout === layout);
         });
+      }
+
+      function setPortraitMargin(value) {
+        const margin = Math.min(18, Math.max(0, Number(value) || 0));
+        const typeScale = Math.min(1.06, Math.max(0.73, 1 - ((margin - 3) * 0.018)));
+        portraitMargin.value = margin;
+        card.style.setProperty("--portrait-margin", `${margin}mm`);
+        card.style.setProperty("--portrait-eyebrow-size", `${9 * typeScale}px`);
+        card.style.setProperty("--portrait-title-size", `${30 * typeScale}px`);
+        card.style.setProperty("--portrait-alt-size", `${12 * typeScale}px`);
+        card.style.setProperty("--portrait-detail-size", `${13 * typeScale}px`);
       }
 
       function setStyle(theme) {
@@ -860,17 +739,8 @@
         renderPhotos();
       }
 
-      async function createCardCanvas() {
-        if (!window.html2canvas) {
-          throw new Error("html2canvas is not loaded.");
-        }
-
-        document.documentElement.dataset.downloadStatus = "waiting-for-assets";
-        if (document.fonts) {
-          await document.fonts.ready;
-        }
-
-        await Promise.all([...card.querySelectorAll("img")].map((image) => {
+      async function waitForImages(root) {
+        await Promise.all([...root.querySelectorAll("img")].map((image) => {
           if (image.complete && image.naturalWidth > 0) {
             return Promise.resolve();
           }
@@ -880,9 +750,22 @@
             image.addEventListener("error", reject, { once: true });
           });
         }));
+      }
+
+      async function createCanvasFromElement(element) {
+        if (!window.html2canvas) {
+          throw new Error("html2canvas is not loaded.");
+        }
+
+        document.documentElement.dataset.downloadStatus = "waiting-for-assets";
+        if (document.fonts) {
+          await document.fonts.ready;
+        }
+
+        await waitForImages(element);
 
         document.documentElement.dataset.downloadStatus = "rendering-card";
-        const canvas = await html2canvas(card, {
+        const canvas = await html2canvas(element, {
           backgroundColor: null,
           logging: false,
           scale: 6,
@@ -890,8 +773,12 @@
         });
 
         document.documentElement.dataset.downloadStatus = "drawing-original-photos";
-        await drawOriginalPhotos(canvas);
+        await drawOriginalPhotos(canvas, element);
         return canvas;
+      }
+
+      async function createCardCanvas() {
+        return createCanvasFromElement(card);
       }
 
       function createRoundedPath(context, x, y, width, height, radius) {
@@ -909,7 +796,19 @@
         context.closePath();
       }
 
-      async function drawOriginalPhotos(canvas) {
+      function parsePhotoPosition(value) {
+        const parts = (value || "50% 50%").trim().split(/\s+/);
+        const parsePart = (part) => {
+          if (part === "left" || part === "top") return 0;
+          if (part === "right" || part === "bottom") return 1;
+          if (part === "center") return 0.5;
+          if (part.endsWith("%")) return Math.min(1, Math.max(0, parseFloat(part) / 100));
+          return 0.5;
+        };
+        return [parsePart(parts[0]), parsePart(parts[1] || parts[0])];
+      }
+
+      async function drawOriginalPhotos(canvas, root) {
         const context = canvas.getContext("2d");
         if (context.resetTransform) {
           context.resetTransform();
@@ -917,43 +816,39 @@
           context.setTransform(1, 0, 0, 1, 0, 0);
         }
 
-        const scale = canvas.width / card.getBoundingClientRect().width;
-        const cardRect = card.getBoundingClientRect();
+        const scale = canvas.width / root.getBoundingClientRect().width;
+        const rootRect = root.getBoundingClientRect();
 
-        for (const photo of [...card.querySelectorAll(".photo")]) {
+        for (const photo of [...root.querySelectorAll(".photo")]) {
           const image = photo.querySelector("img");
           const photoRect = photo.getBoundingClientRect();
           if (photoRect.width === 0 || photoRect.height === 0) {
             continue;
           }
-          const x = Math.round((photoRect.left - cardRect.left) * scale);
-          const y = Math.round((photoRect.top - cardRect.top) * scale);
+          const x = Math.round((photoRect.left - rootRect.left) * scale);
+          const y = Math.round((photoRect.top - rootRect.top) * scale);
           const width = Math.round(photoRect.width * scale);
           const height = Math.round(photoRect.height * scale);
           const radius = parseFloat(getComputedStyle(photo).borderRadius) * scale;
           const sourceWidth = image.naturalWidth;
           const sourceHeight = image.naturalHeight;
-          const sourceRatio = sourceWidth / sourceHeight;
-          const targetRatio = photoRect.width / photoRect.height;
-          let sourceX = 0;
-          let sourceY = 0;
-          let cropWidth = sourceWidth;
-          let cropHeight = sourceHeight;
-
-          if (sourceRatio > targetRatio) {
-            cropWidth = Math.round(sourceHeight * targetRatio);
-            sourceX = Math.round((sourceWidth - cropWidth) / 2);
-          } else {
-            cropHeight = Math.round(sourceWidth / targetRatio);
-            sourceY = Math.round((sourceHeight - cropHeight) / 2);
-          }
+          const computedPhoto = getComputedStyle(photo);
+          const photoFit = photo.dataset.fit || computedPhoto.getPropertyValue("--photo-fit").trim() || "cover";
+          const [positionX, positionY] = parsePhotoPosition(computedPhoto.getPropertyValue("--photo-position"));
+          const fitScale = photoFit === "contain"
+            ? Math.min(width / sourceWidth, height / sourceHeight)
+            : Math.max(width / sourceWidth, height / sourceHeight);
+          const drawWidth = sourceWidth * fitScale;
+          const drawHeight = sourceHeight * fitScale;
+          const drawX = x + ((width - drawWidth) * positionX);
+          const drawY = y + ((height - drawHeight) * positionY);
 
           context.save();
           createRoundedPath(context, x, y, width, height, radius);
           context.clip();
           context.imageSmoothingEnabled = true;
           context.imageSmoothingQuality = "high";
-          context.drawImage(image, sourceX, sourceY, cropWidth, cropHeight, x, y, width, height);
+          context.drawImage(image, drawX, drawY, drawWidth, drawHeight);
           context.restore();
 
           context.save();
@@ -967,12 +862,24 @@
 
       function getDownloadFileName() {
         const locale = language.value;
-        const layout = card.classList.contains("baby-card")
-          ? "baby-card"
-          : card.classList.contains("landscape")
-            ? "landscape"
-            : "portrait";
+        const layout = card.classList.contains("landscape") ? "landscape" : "portrait";
         return `sena-baby-card-${locale}-${layout}.png`;
+      }
+
+      async function downloadCanvas(canvas, fileName) {
+        const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+        if (!blob) {
+          throw new Error("Canvas PNG blob could not be created.");
+        }
+
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.download = fileName;
+        link.href = url;
+        document.body.append(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
       }
 
       async function downloadCardImage() {
@@ -985,20 +892,8 @@
         try {
           const canvas = await createCardCanvas();
           document.documentElement.dataset.downloadStatus = "creating-blob";
-          const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
-          if (!blob) {
-            throw new Error("Canvas PNG blob could not be created.");
-          }
-
           document.documentElement.dataset.downloadStatus = "downloading";
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement("a");
-          link.download = getDownloadFileName();
-          link.href = url;
-          document.body.append(link);
-          link.click();
-          link.remove();
-          setTimeout(() => URL.revokeObjectURL(url), 1000);
+          await downloadCanvas(canvas, getDownloadFileName());
           document.documentElement.dataset.downloadStatus = "done";
         } catch (error) {
           console.error(error);
@@ -1016,6 +911,7 @@
       });
 
       language.addEventListener("change", () => setLanguage(language.value));
+      portraitMargin.addEventListener("input", () => setPortraitMargin(portraitMargin.value));
       style.addEventListener("change", () => setStyle(style.value));
       rotatePhotos.addEventListener("click", rotatePhotoOrder);
       shufflePhotos.addEventListener("click", shufflePhotoOrder);
@@ -1037,6 +933,7 @@
 
       setLanguage(language.value);
       setStyle(style.value);
+      setPortraitMargin(portraitMargin.value);
       setLayout("portrait");
 
       if (new URLSearchParams(window.location.search).get("download") === "1") {
